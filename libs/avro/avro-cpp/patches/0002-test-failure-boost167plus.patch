@@ -1,0 +1,167 @@
+fix test on boost 1.67+
+Index: avro-cpp-1.8.2/test/DataFileTests.cc
+===================================================================
+--- avro-cpp-1.8.2.orig/test/DataFileTests.cc	2017-05-07 19:26:32.000000000 +0200
++++ avro-cpp-1.8.2/test/DataFileTests.cc	2019-11-07 15:01:45.020533800 +0100
+@@ -465,37 +465,59 @@
+ test_suite*
+ init_unit_test_suite( int argc, char* argv[] )
+ {
+-    test_suite* ts= BOOST_TEST_SUITE("DataFile tests");
+-    shared_ptr<DataFileTest> t1(new DataFileTest("test1.df", sch, isch));
+-    ts->add(BOOST_CLASS_TEST_CASE(&DataFileTest::testWrite, t1));
+-    addReaderTests(ts, t1);
+-
+-    shared_ptr<DataFileTest> t2(new DataFileTest("test2.df", sch, isch));
+-    ts->add(BOOST_CLASS_TEST_CASE(&DataFileTest::testWriteGeneric, t2));
+-    addReaderTests(ts, t2);
+-
+-    shared_ptr<DataFileTest> t3(new DataFileTest("test3.df", dsch, dblsch));
+-    ts->add(BOOST_CLASS_TEST_CASE(&DataFileTest::testWriteDouble, t3));
+-    ts->add(BOOST_CLASS_TEST_CASE(&DataFileTest::testReadDouble, t3));
+-    ts->add(BOOST_CLASS_TEST_CASE(&DataFileTest::testReadDoubleTwoStep, t3));
+-    ts->add(BOOST_CLASS_TEST_CASE(&DataFileTest::testReadDoubleTwoStepProject,
+-        t3));
+-    ts->add(BOOST_CLASS_TEST_CASE(&DataFileTest::testCleanup, t3));
+-
+-    shared_ptr<DataFileTest> t4(new DataFileTest("test4.df", dsch, dblsch));
+-    ts->add(BOOST_CLASS_TEST_CASE(&DataFileTest::testTruncate, t4));
+-    ts->add(BOOST_CLASS_TEST_CASE(&DataFileTest::testCleanup, t4));
+-
+-    shared_ptr<DataFileTest> t5(new DataFileTest("test5.df", sch, isch));
+-    ts->add(BOOST_CLASS_TEST_CASE(&DataFileTest::testWriteGenericByName, t5));
+-    addReaderTests(ts, t5);
+-
+-    shared_ptr<DataFileTest> t6(new DataFileTest("test6.df", dsch, dblsch));
+-    ts->add(BOOST_CLASS_TEST_CASE(&DataFileTest::testZip, t6));
+-
+-    shared_ptr<DataFileTest> t7(new DataFileTest("test7.df",fsch,fsch));
+-    ts->add(BOOST_CLASS_TEST_CASE(&DataFileTest::testSchemaReadWrite,t7));
+-    ts->add(BOOST_CLASS_TEST_CASE(&DataFileTest::testCleanup,t7));
+-
+-    return ts;
++    {
++        test_suite *ts = BOOST_TEST_SUITE("DataFile tests: test1.df");
++        shared_ptr<DataFileTest> t1(new DataFileTest("test1.df", sch, isch));
++        ts->add(BOOST_CLASS_TEST_CASE(&DataFileTest::testWrite, t1));
++        addReaderTests(ts, t1);
++        boost::unit_test::framework::master_test_suite().add(ts);
++    }
++    {
++        test_suite *ts = BOOST_TEST_SUITE("DataFile tests: test2.df");
++        shared_ptr<DataFileTest> t2(new DataFileTest("test2.df", sch, isch));
++        ts->add(BOOST_CLASS_TEST_CASE(&DataFileTest::testWriteGeneric, t2));
++        addReaderTests(ts, t2);
++        boost::unit_test::framework::master_test_suite().add(ts);
++    }
++    {
++        test_suite *ts = BOOST_TEST_SUITE("DataFile tests: test3.df");
++        shared_ptr<DataFileTest> t3(new DataFileTest("test3.df", dsch, dblsch));
++        ts->add(BOOST_CLASS_TEST_CASE(&DataFileTest::testWriteDouble, t3));
++        ts->add(BOOST_CLASS_TEST_CASE(&DataFileTest::testReadDouble, t3));
++        ts->add(
++            BOOST_CLASS_TEST_CASE(&DataFileTest::testReadDoubleTwoStep, t3));
++        ts->add(BOOST_CLASS_TEST_CASE(
++            &DataFileTest::testReadDoubleTwoStepProject, t3));
++        ts->add(BOOST_CLASS_TEST_CASE(&DataFileTest::testCleanup, t3));
++        boost::unit_test::framework::master_test_suite().add(ts);
++    }
++    {
++        test_suite *ts = BOOST_TEST_SUITE("DataFile tests: test4.df");
++        shared_ptr<DataFileTest> t4(new DataFileTest("test4.df", dsch, dblsch));
++        ts->add(BOOST_CLASS_TEST_CASE(&DataFileTest::testTruncate, t4));
++        ts->add(BOOST_CLASS_TEST_CASE(&DataFileTest::testCleanup, t4));
++        boost::unit_test::framework::master_test_suite().add(ts);
++    }
++    {
++        test_suite *ts = BOOST_TEST_SUITE("DataFile tests: test5.df");
++        shared_ptr<DataFileTest> t5(new DataFileTest("test5.df", sch, isch));
++        ts->add(
++            BOOST_CLASS_TEST_CASE(&DataFileTest::testWriteGenericByName, t5));
++        addReaderTests(ts, t5);
++        boost::unit_test::framework::master_test_suite().add(ts);
++    }
++    {
++        test_suite *ts = BOOST_TEST_SUITE("DataFile tests: test6.df");
++        shared_ptr<DataFileTest> t6(new DataFileTest("test6.df", dsch, dblsch));
++        ts->add(BOOST_CLASS_TEST_CASE(&DataFileTest::testZip, t6));
++        boost::unit_test::framework::master_test_suite().add(ts);
++    }
++    {
++        test_suite *ts = BOOST_TEST_SUITE("DataFile tests: test7.df");
++        shared_ptr<DataFileTest> t7(new DataFileTest("test7.df", fsch, fsch));
++        ts->add(BOOST_CLASS_TEST_CASE(&DataFileTest::testSchemaReadWrite, t7));
++        ts->add(BOOST_CLASS_TEST_CASE(&DataFileTest::testCleanup, t7));
++        boost::unit_test::framework::master_test_suite().add(ts);
++    }
++    return 0;
+ }
+Index: avro-cpp-1.8.2/test/unittest.cc
+===================================================================
+--- avro-cpp-1.8.2.orig/test/unittest.cc	2017-05-07 19:26:32.000000000 +0200
++++ avro-cpp-1.8.2/test/unittest.cc	2019-11-07 15:03:39.461954400 +0100
+@@ -767,14 +767,6 @@
+     ValidSchema unionTwo_;
+ };
+ 
+-
+-template<typename T>
+-void addTestCase(boost::unit_test::test_suite &test) 
+-{
+-    boost::shared_ptr<T> newtest( new T );
+-    test.add( BOOST_CLASS_TEST_CASE( &T::test, newtest ));
+-}
+-
+ boost::unit_test::test_suite*
+ init_unit_test_suite( int argc, char* argv[] ) 
+ {
+@@ -782,12 +774,18 @@
+ 
+     test_suite* test= BOOST_TEST_SUITE( "Avro C++ unit test suite" );
+ 
+-    addTestCase<TestEncoding>(*test);
+-    addTestCase<TestSchema>(*test);
+-    addTestCase<TestNested>(*test);
+-    addTestCase<TestGenerated>(*test);
+-    addTestCase<TestBadStuff>(*test);
+-    addTestCase<TestResolution>(*test);
++    test->add(BOOST_CLASS_TEST_CASE(&TestEncoding::test,
++                                    boost::make_shared<TestEncoding>()));
++    test->add(BOOST_CLASS_TEST_CASE(&TestSchema::test,
++                                    boost::make_shared<TestSchema>()));
++    test->add(BOOST_CLASS_TEST_CASE(&TestNested::test,
++                                    boost::make_shared<TestNested>()));
++    test->add(BOOST_CLASS_TEST_CASE(&TestGenerated::test,
++                                    boost::make_shared<TestGenerated>()));
++    test->add(BOOST_CLASS_TEST_CASE(&TestBadStuff::test,
++                                    boost::make_shared<TestBadStuff>()));
++    test->add(BOOST_CLASS_TEST_CASE(&TestResolution::test,
++                                    boost::make_shared<TestResolution>()));
+ 
+     return test;
+ }
+Index: avro-cpp-1.8.2/test/CodecTests.cc
+===================================================================
+--- avro-cpp-1.8.2.orig/test/CodecTests.cc	2017-05-07 19:26:32.000000000 +0200
++++ avro-cpp-1.8.2/test/CodecTests.cc	2019-11-07 15:04:22.729342700 +0100
+@@ -1342,9 +1342,17 @@
+ #define COUNTOF(x)  sizeof(x) / sizeof(x[0])
+ #define ENDOF(x)    (x) + COUNTOF(x)
+ 
+-#define ADD_TESTS(testSuite, Factory, testFunc, data)           \
+-testSuite.add(BOOST_PARAM_TEST_CASE(&testFunc<Factory>,         \
+-    data, data + COUNTOF(data)))
++// Boost 1.67 and later expects test cases to have unique names. This dummy
++// helper functions leads to names which compose 'testFunc', 'Factory', and
++// 'data'.
++template <typename Test, typename Data>
++Test testWithData(const Test &test, const Data &data) {
++    boost::ignore_unused(data);
++    return test;
++}
++#define ADD_TESTS(testSuite, Factory, testFunc, data) \
++    testSuite.add(BOOST_PARAM_TEST_CASE(              \
++        testWithData(&testFunc<Factory>, data), data, data + COUNTOF(data)))
+ 
+ struct BinaryEncoderFactory {
+     static EncoderPtr newEncoder(const ValidSchema& schema) {
