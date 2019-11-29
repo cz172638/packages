@@ -1,0 +1,57 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -89,19 +89,22 @@
+ set_property (TARGET avrocpp
+     APPEND PROPERTY COMPILE_DEFINITIONS AVRO_DYN_LINK)
+ 
+-add_library (avrocpp_s STATIC ${AVRO_SOURCE_FILES})
+-
+-set_property (TARGET avrocpp avrocpp_s
++set_property (TARGET avrocpp
+     APPEND PROPERTY COMPILE_DEFINITIONS AVRO_SOURCE)
+ 
+ set_target_properties (avrocpp PROPERTIES
+     VERSION ${AVRO_VERSION_MAJOR}.${AVRO_VERSION_MINOR})
+ 
++target_link_libraries (avrocpp ${Boost_LIBRARIES})
++
++
++if(WITH_TESTS)
++add_library (avrocpp_s STATIC ${AVRO_SOURCE_FILES})
++set_property (TARGET avrocpp_s
++    APPEND PROPERTY COMPILE_DEFINITIONS AVRO_SOURCE)
+ set_target_properties (avrocpp_s PROPERTIES
+     VERSION ${AVRO_VERSION_MAJOR}.${AVRO_VERSION_MINOR})
+ 
+-target_link_libraries (avrocpp ${Boost_LIBRARIES})
+-
+ add_executable (precompile test/precompile.cc)
+ 
+ target_link_libraries (precompile avrocpp_s ${Boost_LIBRARIES})
+@@ -157,18 +160,24 @@
+     union_array_union_hh union_map_union_hh union_conflict_hh
+     recursive_hh reuse_hh circulardep_hh empty_record_hh)
+ 
++endif(WITH_TESTS)
++
+ include (InstallRequiredSystemLibraries)
+ 
+ set (CPACK_PACKAGE_FILE_NAME "avrocpp-${AVRO_VERSION_MAJOR}")
+ 
+ include (CPack)
+ 
+-install (TARGETS avrocpp avrocpp_s
++install (TARGETS avrocpp
+     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+-    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+     RUNTIME DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+ 
++if(WITH_TESTS)
++
+ install (TARGETS avrogencpp RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
++install (TARGETS avrocpp_s
++    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}")
++endif(WITH_TESTS)
+ 
+ install (DIRECTORY api/ DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/avro"
+     FILES_MATCHING PATTERN *.hh)
